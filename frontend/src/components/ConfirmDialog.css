@@ -1,0 +1,38 @@
+.confirm-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.confirm-btn-cancel,
+.confirm-btn-ok {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    min-width: 100px;
+}
+
+.confirm-btn-cancel {
+    background: var(--dark-lighter);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+}
+
+.confirm-btn-cancel:hover {
+    border-color: var(--text-secondary);
+    transform: translateY(-2px);
+}
+
+.confirm-btn-ok {
+    background: var(--gradient-1);
+    color: white;
+}
+
+.confirm-btn-ok:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px var(--shadow);
+}

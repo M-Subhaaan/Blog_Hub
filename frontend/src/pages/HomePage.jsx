@@ -1,0 +1,211 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { blogAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import LoginModal from '../components/auth/LoginModal';
+import SignupModal from '../components/auth/SignupModal';
+import BlogCard from '../components/BlogCard';
+import CustomAlert from '../components/CustomAlert';
+import './HomePage.css';
+
+const HomePage = () => {
+    const [blogs, setBlogs] = useState([]);
+    const [filteredBlogs, setFilteredBlogs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [showLogin, setShowLogin] = useState(false);
+    const [showSignup, setShowSignup] = useState(false);
+    const [searchCategory, setSearchCategory] = useState('');
+    const [alert, setAlert] = useState(null);
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchBlogs();
+    }, []);
+
+    useEffect(() => {
+        // Filter blogs based on search category
+        if (searchCategory === '' || searchCategory === 'all') {
+            setFilteredBlogs(blogs);
+        } else {
+            const filtered = blogs.filter(blog =>
+                blog.topic.toLowerCase() === searchCategory.toLowerCase()
+            );
+            setFilteredBlogs(filtered);
+        }
+    }, [searchCategory, blogs]);
+
+    const fetchBlogs = async () => {
+        try {
+            const response = await blogAPI.getAll();
+            setBlogs(response.data.data.blogs);
+            setFilteredBlogs(response.data.data.blogs);
+            setLoading(false);
+        } catch (err) {
+            setError('Failed to load blogs');
+            setLoading(false);
+        }
+    };
+
+    const handleLogout = async () => {
+        await logout();
+        window.location.reload();
+    };
+
+    const showAlert = (message, type = 'info') => {
+        setAlert({ message, type });
+    };
+
+    const closeAlert = () => {
+        setAlert(null);
+    };
+
+    if (loading) {
+        return (
+            <div className="loading-container">
+                <div className="spinner"></div>
+                <p>Loading blogs...</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="home-page">
+            <header className="header glass">
+                <div className="container">
+                    <div className="header-content">
+                        <h1 className="logo">📝 Blog Hub</h1>
+
+                        <div className="header-actions">
+                            {user ? (
+                                <>
+                                    <span className="user-greeting">
+                                        Hello, <strong>{user.name}</strong>
+                                    </span>
+                                    {user.role === 'admin' && (
+                                        <button
+                                            className="btn btn-secondary"
+                                            onClick={() => navigate('/admin/dashboard')}
+                                        >
+                                            Dashboard
+                                        </button>
+                                    )}
+                                    <button className="btn btn-outline" onClick={handleLogout}>
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button className="btn btn-outline" onClick={() => setShowLogin(true)}>
+                                        Login
+                                    </button>
+                                    <button className="btn btn-primary" onClick={() => setShowSignup(true)}>
+                                        Sign Up
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main className="main-content">
+                <div className="container">
+                    <div className="hero-section">
+                        <h2 className="hero-title">Discover Amazing Stories</h2>
+                        <p className="hero-subtitle">
+                            Explore blogs on technology, health, business, and Islamic topics
+                        </p>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="search-section">
+                        <div className="search-bar">
+                            <span className="search-icon">🔍</span>
+                            <select
+                                className="category-search"
+                                value={searchCategory}
+                                onChange={(e) => setSearchCategory(e.target.value)}
+                            >
+                                <option value="">Search by category</option>
+                                <option value="all">All Categories</option>
+                                <option value="tech">Tech</option>
+                                <option value="health">Health</option>
+                                <option value="business">Business</option>
+                                <option value="islamic">Islamic</option>
+                            </select>
+                        </div>
+                        {searchCategory && searchCategory !== 'all' && (
+                            <p className="search-results-text">
+                                Showing <strong>{filteredBlogs.length}</strong> {searchCategory} {filteredBlogs.length === 1 ? 'blog' : 'blogs'}
+                            </p>
+                        )}
+                    </div>
+
+                    {error && (
+                        <div className="alert alert-error">
+                            {error}
+                        </div>
+                    )}
+
+                    {filteredBlogs.length === 0 ? (
+                        <div className="empty-state">
+                            <h3>No blogs found</h3>
+                            <p>
+                                {searchCategory && searchCategory !== 'all'
+                                    ? `No blogs found in the ${searchCategory} category. Try a different category!`
+                                    : 'Be the first to create a blog post!'
+                                }
+                            </p>
+                            {searchCategory && searchCategory !== 'all' && (
+                                <button
+                                    className="btn btn-primary mt-2"
+                                    onClick={() => setSearchCategory('')}
+                                >
+                                    Clear Filter
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="blogs-grid">
+                            {filteredBlogs.map((blog) => (
+                                <BlogCard key={blog._id} blog={blog} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </main>
+
+            {showLogin && (
+                <LoginModal
+                    onClose={() => setShowLogin(false)}
+                    onSwitchToSignup={() => {
+                        setShowLogin(false);
+                        setShowSignup(true);
+                    }}
+                />
+            )}
+
+            {showSignup && (
+                <SignupModal
+                    onClose={() => setShowSignup(false)}
+                    onSwitchToLogin={() => {
+                        setShowSignup(false);
+                        setShowLogin(true);
+                    }}
+                />
+            )}
+
+            {alert && (
+                <CustomAlert
+                    message={alert.message}
+                    type={alert.type}
+                    onClose={closeAlert}
+                />
+            )}
+        </div>
+    );
+};
+
+export default HomePage;

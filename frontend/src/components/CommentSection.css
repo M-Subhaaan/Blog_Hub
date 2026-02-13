@@ -1,0 +1,130 @@
+.comment-section {
+    margin-top: 3rem;
+}
+
+.comment-section-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+}
+
+.comment-form {
+    background: var(--dark-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+}
+
+.comment-input {
+    width: 100%;
+    margin-bottom: 1rem;
+    background: var(--dark-lighter);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.comment-login-prompt {
+    background: var(--dark-light);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    border: 2px dashed var(--border);
+}
+
+.comment-login-prompt p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.no-comments {
+    background: var(--dark-light);
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    border: 2px dashed var(--border);
+}
+
+.no-comments p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.comment-item {
+    background: var(--dark-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.comment-author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.author-avatar {
+    font-size: 1.5rem;
+}
+
+.author-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.comment-date {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.comment-text {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+    .comment-section-title {
+        font-size: 1.5rem;
+    }
+
+    .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
