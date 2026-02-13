@@ -4,6 +4,7 @@ import { blogAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LoginModal from '../components/auth/LoginModal';
 import SignupModal from '../components/auth/SignupModal';
+import ChangePasswordModal from '../components/auth/ChangePasswordModal';
 import BlogCard from '../components/BlogCard';
 import CustomAlert from '../components/CustomAlert';
 import Skeleton from '../components/Skeleton';
@@ -16,6 +17,7 @@ const HomePage = () => {
     const [error, setError] = useState('');
     const [showLogin, setShowLogin] = useState(false);
     const [showSignup, setShowSignup] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
     const [searchCategory, setSearchCategory] = useState('');
     const [alert, setAlert] = useState(null);
     const { user, logout } = useAuth();
@@ -126,6 +128,12 @@ const HomePage = () => {
                                             Dashboard
                                         </button>
                                     )}
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => setShowChangePassword(true)}
+                                    >
+                                        Change Password
+                                    </button>
                                     <button className="btn btn-outline" onClick={handleLogout}>
                                         Logout
                                     </button>
@@ -229,6 +237,13 @@ const HomePage = () => {
                         setShowSignup(false);
                         setShowLogin(true);
                     }}
+                />
+            )}
+
+            {showChangePassword && (
+                <ChangePasswordModal
+                    onClose={() => setShowChangePassword(false)}
+                    onShowAlert={showAlert}
                 />
             )}
 

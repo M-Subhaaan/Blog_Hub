@@ -6,6 +6,8 @@ import BlogDetailPage from './pages/BlogDetailPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CreateBlog from './pages/admin/CreateBlog';
 import EditBlog from './pages/admin/EditBlog';
+import ForgotPassword from './components/auth/ForgotPassword';
+import ResetPassword from './components/auth/ResetPassword';
 
 function App() {
     return (
@@ -15,6 +17,8 @@ function App() {
                     {/* Public Routes */}
                     <Route path="/" element={<HomePage />} />
                     <Route path="/blog/:id" element={<BlogDetailPage />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password/:token" element={<ResetPassword />} />
 
                     {/* Admin Routes */}
                     <Route

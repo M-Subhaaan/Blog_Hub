@@ -77,6 +77,11 @@ const LoginModal = ({ onClose, onSwitchToSignup }) => {
 
                 <div className="modal-footer">
                     <p>
+                        <button className="link-btn" onClick={() => window.location.href = '/forgot-password'}>
+                            Forgot Password?
+                        </button>
+                    </p>
+                    <p>
                         Don't have an account?{' '}
                         <button className="link-btn" onClick={onSwitchToSignup}>
                             Sign up

@@ -43,6 +43,15 @@ export const authAPI = {
     signupUser: (userData) => api.post('/users/register', userData),
     signupAdmin: (adminData) => api.post('/users/admin/signup', adminData),
     logout: () => api.post('/users/logout'),
+    forgetPassword: (emailData) => api.post('/users/forget-password', emailData),
+    resetPassword: (token, passwordData) => api.patch(`/users/resetpassword/${token}`, passwordData),
+    updatePassword: (passwordData) => api.patch('/users/updatepassword', passwordData),
+};
+
+// User APIs
+export const userAPI = {
+    getAll: () => api.get('/users'),
+    delete: (id) => api.delete(`/users/delete-user/${id}`),
 };
 
 // Blog APIs

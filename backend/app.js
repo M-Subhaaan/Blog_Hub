@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const helmet = require("helmet");
 const userRouter = require("./routes/userRouter");
 const blogRouter = require("./routes/blogRouter");
 const reactionRouter = require("./routes/reactionRouter");
@@ -9,6 +10,7 @@ const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorControler");
 
 const app = express();
+app.use(helmet);
 
 app.use(express.json());
 app.use(cookieParser());

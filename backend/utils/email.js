@@ -18,7 +18,9 @@ const sendEmail = catchAsync(async (options) => {
     subject: options.subject,
     text: options.message,
   };
+
   //3)Send the Email
+
   await transporter.sendMail(emailOptions);
 });
 

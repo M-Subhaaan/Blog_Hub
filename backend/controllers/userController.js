@@ -13,3 +13,14 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
     message: "User Deleted Successfuly",
   });
 });
+
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find();
+  res.status(200).json({
+    status: "Success",
+    results: users.length,
+    data: {
+      users,
+    },
+  });
+});

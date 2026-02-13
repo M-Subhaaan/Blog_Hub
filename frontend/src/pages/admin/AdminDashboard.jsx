@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { blogAPI } from '../../services/api';
+import { blogAPI, userAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import CustomAlert from '../../components/CustomAlert';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -8,6 +8,8 @@ import './AdminDashboard.css';
 
 const AdminDashboard = () => {
     const [blogs, setBlogs] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [view, setView] = useState('blogs'); // 'blogs' or 'users'
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [alert, setAlert] = useState(null);
@@ -16,16 +18,21 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchBlogs();
+        fetchDashboardData();
     }, []);
 
-    const fetchBlogs = async () => {
+    const fetchDashboardData = async () => {
+        setLoading(true);
         try {
-            const response = await blogAPI.getAll();
-            setBlogs(response.data.data.blogs);
+            const [blogsRes, usersRes] = await Promise.all([
+                blogAPI.getAll(),
+                userAPI.getAll()
+            ]);
+            setBlogs(blogsRes.data.data.blogs);
+            setUsers(usersRes.data.data.users);
             setLoading(false);
         } catch (err) {
-            setError('Failed to load blogs');
+            setError('Failed to load dashboard data');
             setLoading(false);
         }
     };
@@ -38,7 +45,7 @@ const AdminDashboard = () => {
         setAlert(null);
     };
 
-    const handleDelete = (id, title) => {
+    const handleDeleteBlog = (id, title) => {
         setConfirmDialog({
             message: `Are you sure you want to delete "${title}"?`,
             onConfirm: async () => {
@@ -49,6 +56,27 @@ const AdminDashboard = () => {
                     showAlert('Blog deleted successfully', 'success');
                 } catch (err) {
                     showAlert(err.response?.data?.message || 'Failed to delete blog', 'error');
+                }
+            },
+            onCancel: () => setConfirmDialog(null),
+        });
+    };
+
+    const handleDeleteUser = (id, name) => {
+        if (id === user._id) {
+            showAlert("You cannot delete yourself", "error");
+            return;
+        }
+        setConfirmDialog({
+            message: `Are you sure you want to delete user "${name}"?`,
+            onConfirm: async () => {
+                setConfirmDialog(null);
+                try {
+                    await userAPI.delete(id);
+                    setUsers(users.filter((u) => u._id !== id));
+                    showAlert('User deleted successfully', 'success');
+                } catch (err) {
+                    showAlert(err.response?.data?.message || 'Failed to delete user', 'error');
                 }
             },
             onCancel: () => setConfirmDialog(null),
@@ -102,18 +130,28 @@ const AdminDashboard = () => {
             <main className="admin-content">
                 <div className="container">
                     <div className="dashboard-header">
-                        <div>
-                            <h2>Manage Blogs</h2>
-                            <p className="dashboard-subtitle">
-                                Total Blogs: <strong>{blogs.length}</strong>
-                            </p>
+                        <div className="dashboard-tabs">
+                            <button
+                                className={`tab-btn ${view === 'blogs' ? 'active' : ''}`}
+                                onClick={() => setView('blogs')}
+                            >
+                                Blogs ({blogs.length})
+                            </button>
+                            <button
+                                className={`tab-btn ${view === 'users' ? 'active' : ''}`}
+                                onClick={() => setView('users')}
+                            >
+                                Users ({users.length})
+                            </button>
                         </div>
-                        <button
-                            className="btn btn-primary"
-                            onClick={() => navigate('/admin/blog/new')}
-                        >
-                            + Create New Blog
-                        </button>
+                        {view === 'blogs' && (
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => navigate('/admin/blog/new')}
+                            >
+                                + Create New Blog
+                            </button>
+                        )}
                     </div>
 
                     {error && (
@@ -122,65 +160,112 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
-                    {blogs.length === 0 ? (
-                        <div className="empty-state">
-                            <h3>No blogs yet</h3>
-                            <p>Create your first blog post to get started</p>
-                            <button
-                                className="btn btn-primary mt-2"
-                                onClick={() => navigate('/admin/blog/new')}
-                            >
-                                Create Blog
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="blogs-table-container">
-                            <table className="blogs-table">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Topic</th>
-                                        <th>Likes</th>
-                                        <th>Dislikes</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {blogs.map((blog) => (
-                                        <tr key={blog._id}>
-                                            <td className="blog-title-cell">{blog.title}</td>
-                                            <td>
-                                                <span className="topic-badge" data-topic={blog.topic}>
-                                                    {blog.topic}
-                                                </span>
-                                            </td>
-                                            <td>{blog.likesCount || 0}</td>
-                                            <td>{blog.dislikesCount || 0}</td>
-                                            <td>{formatDate(blog.createdAt)}</td>
-                                            <td>
-                                                <div className="action-buttons">
-                                                    <button
-                                                        className="btn-icon btn-edit"
-                                                        onClick={() => navigate(`/admin/blog/edit/${blog._id}`)}
-                                                        title="Edit"
-                                                    >
-                                                        ✏️
-                                                    </button>
-                                                    <button
-                                                        className="btn-icon btn-delete"
-                                                        onClick={() => handleDelete(blog._id, blog.title)}
-                                                        title="Delete"
-                                                    >
-                                                        🗑️
-                                                    </button>
-                                                </div>
-                                            </td>
+                    {view === 'blogs' ? (
+                        blogs.length === 0 ? (
+                            <div className="empty-state">
+                                <h3>No blogs yet</h3>
+                                <p>Create your first blog post to get started</p>
+                                <button
+                                    className="btn btn-primary mt-2"
+                                    onClick={() => navigate('/admin/blog/new')}
+                                >
+                                    Create Blog
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="blogs-table-container">
+                                <table className="blogs-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Topic</th>
+                                            <th>Likes</th>
+                                            <th>Dislikes</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {blogs.map((blog) => (
+                                            <tr key={blog._id}>
+                                                <td className="blog-title-cell">{blog.title}</td>
+                                                <td>
+                                                    <span className="topic-badge" data-topic={blog.topic}>
+                                                        {blog.topic}
+                                                    </span>
+                                                </td>
+                                                <td>{blog.likesCount || 0}</td>
+                                                <td>{blog.dislikesCount || 0}</td>
+                                                <td>{formatDate(blog.createdAt)}</td>
+                                                <td>
+                                                    <div className="action-buttons">
+                                                        <button
+                                                            className="btn-icon btn-edit"
+                                                            onClick={() => navigate(`/admin/blog/edit/${blog._id}`)}
+                                                            title="Edit"
+                                                        >
+                                                            ✏️
+                                                        </button>
+                                                        <button
+                                                            className="btn-icon btn-delete"
+                                                            onClick={() => handleDeleteBlog(blog._id, blog.title)}
+                                                            title="Delete"
+                                                        >
+                                                            🗑️
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )
+                    ) : (
+                        users.length === 0 ? (
+                            <div className="empty-state">
+                                <h3>No users found</h3>
+                                <p>This is strange, there should be at least one admin!</p>
+                            </div>
+                        ) : (
+                            <div className="blogs-table-container">
+                                <table className="blogs-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {users.map((u) => (
+                                            <tr key={u._id}>
+                                                <td>{u.name}</td>
+                                                <td>{u.email}</td>
+                                                <td>
+                                                    <span className={`role-badge ${u.role}`}>
+                                                        {u.role}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="action-buttons">
+                                                        <button
+                                                            className="btn-icon btn-delete"
+                                                            onClick={() => handleDeleteUser(u._id, u.name)}
+                                                            title="Delete User"
+                                                            disabled={u._id === user._id}
+                                                        >
+                                                            🗑️
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )
                     )}
                 </div>
             </main>
