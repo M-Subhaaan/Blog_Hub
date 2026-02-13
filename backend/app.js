@@ -10,7 +10,7 @@ const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorControler");
 
 const app = express();
-app.use(helmet);
+app.use(helmet());
 
 app.use(express.json());
 app.use(cookieParser());
