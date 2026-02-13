@@ -6,6 +6,7 @@ import LoginModal from '../components/auth/LoginModal';
 import SignupModal from '../components/auth/SignupModal';
 import BlogCard from '../components/BlogCard';
 import CustomAlert from '../components/CustomAlert';
+import Skeleton from '../components/Skeleton';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -63,9 +64,43 @@ const HomePage = () => {
 
     if (loading) {
         return (
-            <div className="loading-container">
-                <div className="spinner"></div>
-                <p>Loading blogs...</p>
+            <div className="home-page">
+                <header className="header glass">
+                    <div className="container">
+                        <div className="header-content">
+                            <h1 className="logo">📝 Blog Hub</h1>
+                        </div>
+                    </div>
+                </header>
+                <main className="main-content">
+                    <div className="container">
+                        <div className="hero-section">
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                                <Skeleton type="title" />
+                            </div>
+                            <Skeleton type="text" />
+                            <Skeleton type="text" />
+                        </div>
+                        <div className="blogs-grid">
+                            {[1, 2, 3, 4, 5, 6].map((i) => (
+                                <div key={i} className="blog-card" style={{ cursor: 'default' }}>
+                                    <div className="blog-card-header">
+                                        <Skeleton type="avatar" />
+                                        <div style={{ width: '100px', height: '16px', background: '#1e293b', borderRadius: '4px' }}></div>
+                                    </div>
+                                    <Skeleton type="title" />
+                                    <Skeleton type="text" />
+                                    <Skeleton type="text" />
+                                    <Skeleton type="text" />
+                                    <div className="blog-card-footer" style={{ border: 'none' }}>
+                                        <div style={{ width: '80px', height: '24px', background: '#1e293b', borderRadius: '4px' }}></div>
+                                        <div style={{ width: '60px', height: '24px', background: '#1e293b', borderRadius: '4px' }}></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </main>
             </div>
         );
     }
