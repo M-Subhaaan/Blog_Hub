@@ -5,6 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import CustomAlert from '../../components/CustomAlert';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import ChangePasswordModal from '../../components/auth/ChangePasswordModal';
+import UpdateProfileModal from '../../components/auth/UpdateProfileModal';
+import ProfileMenu from '../../components/auth/ProfileMenu';
 import './AdminDashboard.css';
 
 
@@ -15,7 +17,7 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showChangePassword, setShowChangePassword] = useState(false);
-    const [showPasswordBtn, setShowPasswordBtn] = useState(false);
+    const [showUpdateProfile, setShowUpdateProfile] = useState(false);
     const [alert, setAlert] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState(null);
 
@@ -117,10 +119,16 @@ const AdminDashboard = () => {
             <header className="admin-header glass">
                 <div className="container">
                     <div className="admin-header-content">
+                        {user && (
+                            <ProfileMenu
+                                onUpdateProfile={() => setShowUpdateProfile(true)}
+                                onChangePassword={() => setShowChangePassword(true)}
+                            />
+                        )}
                         <h1 className="admin-logo">⚡ Admin Dashboard</h1>
                         <div className="admin-header-actions">
                             <div className="admin-user-profile">
-                                <div className="admin-avatar" onClick={() => setShowPasswordBtn(!showPasswordBtn)}>
+                                <div className="admin-avatar">
                                     {user?.profilePic?.url ? (
                                         <img src={user.profilePic.url} alt={user.name} />
                                     ) : (
@@ -129,18 +137,6 @@ const AdminDashboard = () => {
                                         </div>
                                     )}
                                 </div>
-                                {showPasswordBtn && (
-                                    <button
-                                        className="btn btn-secondary btn-sm"
-                                        onClick={() => {
-                                            setShowChangePassword(true);
-                                            setShowPasswordBtn(false);
-                                        }}
-                                        style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
-                                    >
-                                        Change Your Password
-                                    </button>
-                                )}
                                 <span className="admin-greeting">
                                     Welcome, <strong>{user?.name}</strong>
                                 </span>
@@ -332,6 +328,13 @@ const AdminDashboard = () => {
             {showChangePassword && (
                 <ChangePasswordModal
                     onClose={() => setShowChangePassword(false)}
+                    onShowAlert={showAlert}
+                />
+            )}
+
+            {showUpdateProfile && (
+                <UpdateProfileModal
+                    onClose={() => setShowUpdateProfile(false)}
                     onShowAlert={showAlert}
                 />
             )}

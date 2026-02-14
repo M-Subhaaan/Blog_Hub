@@ -17,6 +17,11 @@ router.patch("/resetpassword/:token", authController.resetPassword);
 router.use(authController.protect);
 
 router.patch("/updatepassword", authController.updatePassword);
+router.patch(
+  "/updateprofile",
+  upload.single("profilePic"),
+  authController.updateProfile,
+);
 router.post("/logout", authController.logout);
 
 router.delete(

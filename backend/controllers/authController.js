@@ -310,6 +310,50 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updateProfile = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const name = req.body.name;
+
+  user.name = name || user.name;
+
+  if (req.file) {
+    if (user.profilePic && user.profilePic.public_id) {
+      await cloudinary.uploader.destroy(user.profilePic.public_id);
+    }
+
+    const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
+      folder: "users",
+      width: 300,
+      height: 300,
+      crop: "fill",
+      gravity: "face",
+    });
+
+    user.profilePic = {
+      url: uploadResponse.secure_url,
+      public_id: uploadResponse.public_id,
+    };
+  }
+
+  await user.save();
+
+  const token = generateToken(user._id, res);
+
+  res.status(200).json({
+    status: "Success",
+    token,
+    body: {
+      user: {
+        _id: user._id,
+        profilePic: user.profilePic,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    },
+  });
+});
+
 exports.logout = (req, res) => {
   res.cookie("jwt", "", { maxAge: 0 });
   res.status(200).json({

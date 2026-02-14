@@ -43,6 +43,7 @@ export const authAPI = {
     forgetPassword: (emailData) => api.post('/users/forget-password', emailData),
     resetPassword: (token, passwordData) => api.patch(`/users/resetpassword/${token}`, passwordData),
     updatePassword: (passwordData) => api.patch('/users/updatepassword', passwordData),
+    updateProfile: (profileData) => api.patch('/users/updateprofile', profileData),
 };
 
 // User APIs
