@@ -35,6 +35,47 @@
     gap: 1rem;
 }
 
+.user-profile-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem 0.5rem 0.5rem;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+}
+
+.user-avatar-small {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--dark-lighter);
+    border: 2px solid var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.user-avatar-small:hover {
+    transform: scale(1.1);
+}
+
+
+.user-avatar-small img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder-small {
+    font-weight: 700;
+    color: var(--primary-light);
+    font-size: 0.9rem;
+}
+
 .user-greeting {
     color: var(--text-secondary);
     font-size: 0.95rem;
@@ -44,6 +85,7 @@
     color: var(--text-primary);
     font-weight: 600;
 }
+
 
 .main-content {
     padding: 3rem 0;

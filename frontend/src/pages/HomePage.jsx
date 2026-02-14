@@ -18,7 +18,9 @@ const HomePage = () => {
     const [showLogin, setShowLogin] = useState(false);
     const [showSignup, setShowSignup] = useState(false);
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showPasswordBtn, setShowPasswordBtn] = useState(false);
     const [searchCategory, setSearchCategory] = useState('');
+
     const [alert, setAlert] = useState(null);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -117,9 +119,34 @@ const HomePage = () => {
                         <div className="header-actions">
                             {user ? (
                                 <>
-                                    <span className="user-greeting">
-                                        Hello, <strong>{user.name}</strong>
-                                    </span>
+                                    <div className="user-profile-nav">
+                                        <div className="user-avatar-small" onClick={() => setShowPasswordBtn(!showPasswordBtn)}>
+                                            {user.profilePic?.url ? (
+                                                <img src={user.profilePic.url} alt={user.name} />
+                                            ) : (
+                                                <div className="avatar-placeholder-small">
+                                                    {user.name.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {showPasswordBtn && (
+                                            <button
+                                                className="btn btn-secondary btn-sm"
+                                                onClick={() => {
+                                                    setShowChangePassword(true);
+                                                    setShowPasswordBtn(false);
+                                                }}
+                                                style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
+                                            >
+                                                Change Your Password
+                                            </button>
+                                        )}
+                                        <span className="user-greeting">
+                                            Hello, <strong>{user.name.split(' ').slice(1).join(' ') || user.name}</strong>
+                                        </span>
+                                    </div>
+
+
                                     {user.role === 'admin' && (
                                         <button
                                             className="btn btn-secondary"
@@ -128,16 +155,11 @@ const HomePage = () => {
                                             Dashboard
                                         </button>
                                     )}
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={() => setShowChangePassword(true)}
-                                    >
-                                        Change Password
-                                    </button>
                                     <button className="btn btn-outline" onClick={handleLogout}>
                                         Logout
                                     </button>
                                 </>
+
                             ) : (
                                 <>
                                     <button className="btn btn-outline" onClick={() => setShowLogin(true)}>

@@ -7,7 +7,9 @@ const UserSignupForm = ({ onClose, onBack }) => {
         name: '',
         email: '',
         password: '',
+        profilePic: ''
     });
+    const [preview, setPreview] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { signupUser } = useAuth();
@@ -19,12 +21,41 @@ const UserSignupForm = ({ onClose, onBack }) => {
         });
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                setError('File size should be less than 5MB');
+                return;
+            }
+
+            setFormData({
+                ...formData,
+                profilePic: file
+            });
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        const result = await signupUser(formData);
+        const data = new FormData();
+        data.append('name', formData.name);
+        data.append('email', formData.email);
+        data.append('password', formData.password);
+        if (formData.profilePic) {
+            data.append('profilePic', formData.profilePic);
+        }
+
+        const result = await signupUser(data);
 
         setLoading(false);
 
@@ -52,6 +83,29 @@ const UserSignupForm = ({ onClose, onBack }) => {
                 )}
 
                 <form onSubmit={handleSubmit}>
+                    <div className="profile-upload-section">
+                        <div className="avatar-preview">
+                            {preview ? (
+                                <img src={preview} alt="Profile Preview" />
+                            ) : (
+                                <div className="avatar-placeholder">👤</div>
+                            )}
+                        </div>
+                        <div className="file-input-wrapper">
+                            <label htmlFor="profilePic" className="btn btn-outline btn-sm">
+                                {preview ? 'Change Photo' : 'Upload Photo'}
+                            </label>
+                            <input
+                                type="file"
+                                id="profilePic"
+                                name="profilePic"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                            />
+                        </div>
+                    </div>
+
                     <div className="form-group">
                         <label htmlFor="name">Name</label>
                         <input

@@ -10,7 +10,9 @@ const EditBlog = () => {
         title: '',
         content: '',
         topic: 'tech',
+        thumbnail: null,
     });
+    const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(true);
     const [error, setError] = useState('');
@@ -29,7 +31,11 @@ const EditBlog = () => {
                 title: blog.title,
                 content: blog.content,
                 topic: blog.topic,
+                thumbnail: null,
             });
+            if (blog.thumbnail?.url) {
+                setPreview(blog.thumbnail.url);
+            }
             setFetchLoading(false);
         } catch (err) {
             setError('Failed to load blog');
@@ -42,6 +48,27 @@ const EditBlog = () => {
             ...formData,
             [e.target.name]: e.target.value,
         });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                setError('File size should be less than 5MB');
+                return;
+            }
+
+            setFormData({
+                ...formData,
+                thumbnail: file
+            });
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const showAlert = (message, type = 'info') => {
@@ -60,8 +87,16 @@ const EditBlog = () => {
         setError('');
         setLoading(true);
 
+        const data = new FormData();
+        data.append('title', formData.title);
+        data.append('topic', formData.topic);
+        data.append('content', formData.content);
+        if (formData.thumbnail) {
+            data.append('thumbnail', formData.thumbnail);
+        }
+
         try {
-            await blogAPI.update(id, formData);
+            await blogAPI.update(id, data);
             showAlert('Blog updated successfully!', 'success');
             setLoading(false);
         } catch (err) {
@@ -97,6 +132,28 @@ const EditBlog = () => {
                     )}
 
                     <form onSubmit={handleSubmit}>
+                        <div className="thumbnail-upload-section">
+                            <label>Blog Thumbnail</label>
+                            <div className="thumbnail-preview-container">
+                                {preview ? (
+                                    <img src={preview} alt="Thumbnail Preview" className="thumbnail-preview" />
+                                ) : (
+                                    <div className="thumbnail-placeholder">
+                                        <span>Click to upload image</span>
+                                        <small>(1200 x 600 recommended)</small>
+                                    </div>
+                                )}
+                                <input
+                                    type="file"
+                                    id="thumbnail"
+                                    name="thumbnail"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="thumbnail-input"
+                                />
+                            </div>
+                        </div>
+
                         <div className="form-group">
                             <label htmlFor="title">Title *</label>
                             <input

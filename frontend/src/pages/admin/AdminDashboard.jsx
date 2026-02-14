@@ -4,7 +4,9 @@ import { blogAPI, userAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import CustomAlert from '../../components/CustomAlert';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import ChangePasswordModal from '../../components/auth/ChangePasswordModal';
 import './AdminDashboard.css';
+
 
 const AdminDashboard = () => {
     const [blogs, setBlogs] = useState([]);
@@ -12,8 +14,12 @@ const AdminDashboard = () => {
     const [view, setView] = useState('blogs'); // 'blogs' or 'users'
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showPasswordBtn, setShowPasswordBtn] = useState(false);
     const [alert, setAlert] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState(null);
+
+
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
@@ -113,9 +119,34 @@ const AdminDashboard = () => {
                     <div className="admin-header-content">
                         <h1 className="admin-logo">⚡ Admin Dashboard</h1>
                         <div className="admin-header-actions">
-                            <span className="admin-greeting">
-                                Welcome, <strong>{user?.name}</strong>
-                            </span>
+                            <div className="admin-user-profile">
+                                <div className="admin-avatar" onClick={() => setShowPasswordBtn(!showPasswordBtn)}>
+                                    {user?.profilePic?.url ? (
+                                        <img src={user.profilePic.url} alt={user.name} />
+                                    ) : (
+                                        <div className="avatar-placeholder-small">
+                                            {user?.name?.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
+                                </div>
+                                {showPasswordBtn && (
+                                    <button
+                                        className="btn btn-secondary btn-sm"
+                                        onClick={() => {
+                                            setShowChangePassword(true);
+                                            setShowPasswordBtn(false);
+                                        }}
+                                        style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
+                                    >
+                                        Change Your Password
+                                    </button>
+                                )}
+                                <span className="admin-greeting">
+                                    Welcome, <strong>{user?.name}</strong>
+                                </span>
+                            </div>
+
+
                             <button className="btn btn-outline" onClick={() => navigate('/')}>
                                 View Site
                             </button>
@@ -232,6 +263,7 @@ const AdminDashboard = () => {
                                 <table className="blogs-table">
                                     <thead>
                                         <tr>
+                                            <th>Avatar</th>
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Role</th>
@@ -241,6 +273,17 @@ const AdminDashboard = () => {
                                     <tbody>
                                         {users.map((u) => (
                                             <tr key={u._id}>
+                                                <td>
+                                                    <div className="table-avatar">
+                                                        {u.profilePic?.url ? (
+                                                            <img src={u.profilePic.url} alt={u.name} />
+                                                        ) : (
+                                                            <div className="avatar-placeholder-xs">
+                                                                {u.name.charAt(0).toUpperCase()}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td>{u.name}</td>
                                                 <td>{u.email}</td>
                                                 <td>
@@ -285,7 +328,15 @@ const AdminDashboard = () => {
                     onCancel={confirmDialog.onCancel}
                 />
             )}
+
+            {showChangePassword && (
+                <ChangePasswordModal
+                    onClose={() => setShowChangePassword(false)}
+                    onShowAlert={showAlert}
+                />
+            )}
         </div>
+
     );
 };
 

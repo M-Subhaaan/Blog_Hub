@@ -8,7 +8,7 @@ exports.getAllComments = catchAsync(async (req, res) => {
 
   const comments = await Comment.find({ blog: blogId }).populate(
     "user",
-    "name email",
+    "name email profilePic",
   );
 
   res.status(200).json({

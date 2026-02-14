@@ -6,6 +6,7 @@ const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const sendEmail = require("../utils/email");
 const { generateToken } = require("../utils/generateToken");
+const cloudinary = require("../utils/cloudinary");
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
@@ -76,10 +77,24 @@ exports.signUp = catchAsync(async (req, res, next) => {
     return next(AppError("Email Already Exists ", 400));
   }
 
+  let uploadResponse;
+  if (req.file) {
+    uploadResponse = await cloudinary.uploader.upload(req.file.path, {
+      folder: "users", // optional: Cloudinary folder
+      width: 300, // crop width
+      height: 300, // crop height
+      crop: "fill", // crop to exact size
+      gravity: "face", // auto focus to face
+    });
+  }
+
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
+    profilePic: uploadResponse
+      ? { url: uploadResponse.secure_url, public_id: uploadResponse.public_id }
+      : null,
     role: "user",
   });
 
@@ -89,10 +104,13 @@ exports.signUp = catchAsync(async (req, res, next) => {
     status: "Success",
     token,
     body: {
-      _id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
+      user: {
+        _id: newUser._id,
+        profilePic: newUser.profilePic,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
     },
   });
 });
@@ -112,10 +130,24 @@ exports.adminSignUp = catchAsync(async (req, res, next) => {
     return next(AppError("Email Already Exists ", 400));
   }
 
+  let uploadResponse;
+  if (req.file) {
+    uploadResponse = await cloudinary.uploader.upload(req.file.path, {
+      folder: "users", // optional: Cloudinary folder
+      width: 300, // crop width
+      height: 300, // crop height
+      crop: "fill", // crop to exact size
+      gravity: "face", // focus on face if possible
+    });
+  }
+
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
+    profilePic: uploadResponse
+      ? { url: uploadResponse.secure_url, public_id: uploadResponse.public_id }
+      : null,
     role: "admin",
   });
 
@@ -125,10 +157,13 @@ exports.adminSignUp = catchAsync(async (req, res, next) => {
     status: "Success",
     token,
     body: {
-      _id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
+      user: {
+        _id: newUser._id,
+        profilePic: newUser.profilePic,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
     },
   });
 });
@@ -158,9 +193,10 @@ exports.login = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "Success",
     token,
-    data: {
+    body: {
       user: {
         _id: user._id,
+        profilePic: user.profilePic,
         name: user.name,
         email: user.email,
         role: user.role,

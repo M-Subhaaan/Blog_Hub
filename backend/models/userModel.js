@@ -5,6 +5,14 @@ const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
+    profilePic: {
+      url: {
+        type: String,
+      },
+      public_id: {
+        type: String,
+      },
+    },
     name: {
       type: String,
       required: [true, "A User must have a Name"],

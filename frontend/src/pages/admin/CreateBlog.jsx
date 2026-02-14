@@ -9,7 +9,9 @@ const CreateBlog = () => {
         title: '',
         content: '',
         topic: 'tech',
+        thumbnail: null,
     });
+    const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [alert, setAlert] = useState(null);
@@ -20,6 +22,27 @@ const CreateBlog = () => {
             ...formData,
             [e.target.name]: e.target.value,
         });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                setError('File size should be less than 5MB');
+                return;
+            }
+
+            setFormData({
+                ...formData,
+                thumbnail: file
+            });
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const showAlert = (message, type = 'info') => {
@@ -36,10 +59,22 @@ const CreateBlog = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!formData.thumbnail) {
+            setError('Please upload a blog thumbnail');
+            return;
+        }
+
         setLoading(true);
 
+        const data = new FormData();
+        data.append('title', formData.title);
+        data.append('topic', formData.topic);
+        data.append('content', formData.content);
+        data.append('thumbnail', formData.thumbnail);
+
         try {
-            await blogAPI.create(formData);
+            await blogAPI.create(data);
             showAlert('Blog created successfully!', 'success');
             setLoading(false);
         } catch (err) {
@@ -66,6 +101,28 @@ const CreateBlog = () => {
                     )}
 
                     <form onSubmit={handleSubmit}>
+                        <div className="thumbnail-upload-section">
+                            <label>Blog Thumbnail *</label>
+                            <div className="thumbnail-preview-container">
+                                {preview ? (
+                                    <img src={preview} alt="Thumbnail Preview" className="thumbnail-preview" />
+                                ) : (
+                                    <div className="thumbnail-placeholder">
+                                        <span>Click to upload image</span>
+                                        <small>(1200 x 600 recommended)</small>
+                                    </div>
+                                )}
+                                <input
+                                    type="file"
+                                    id="thumbnail"
+                                    name="thumbnail"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="thumbnail-input"
+                                />
+                            </div>
+                        </div>
+
                         <div className="form-group">
                             <label htmlFor="title">Title *</label>
                             <input

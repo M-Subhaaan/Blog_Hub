@@ -29,13 +29,13 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         try {
             const response = await authAPI.login(credentials);
-            const { token, data } = response.data;
+            const { token, body } = response.data;
 
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            setUser(data.user);
+            localStorage.setItem('user', JSON.stringify(body.user));
+            setUser(body.user);
 
-            return { success: true, user: data.user };
+            return { success: true, user: body.user };
         } catch (error) {
             const message = error.response?.data?.message || 'Login failed';
             return { success: false, error: message };
@@ -48,10 +48,10 @@ export const AuthProvider = ({ children }) => {
             const { token, body } = response.data;
 
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(body));
-            setUser(body);
+            localStorage.setItem('user', JSON.stringify(body.user));
+            setUser(body.user);
 
-            return { success: true, user: body };
+            return { success: true, user: body.user };
         } catch (error) {
             const message = error.response?.data?.message || 'Signup failed';
             return { success: false, error: message };
@@ -64,10 +64,10 @@ export const AuthProvider = ({ children }) => {
             const { token, body } = response.data;
 
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(body));
-            setUser(body);
+            localStorage.setItem('user', JSON.stringify(body.user));
+            setUser(body.user);
 
-            return { success: true, user: body };
+            return { success: true, user: body.user };
         } catch (error) {
             const message = error.response?.data?.message || 'Admin signup failed';
             return { success: false, error: message };

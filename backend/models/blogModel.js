@@ -9,6 +9,16 @@ const blogSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    thumbnail: {
+      url: {
+        type: String,
+        required: true,
+      },
+      public_id: {
+        type: String,
+        required: true, // public_id is required
+      },
+    },
     content: {
       type: String,
       required: [true, "A Blog must have a Content"],

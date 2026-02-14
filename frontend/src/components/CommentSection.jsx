@@ -110,7 +110,15 @@ const CommentSection = ({ blogId, comments, onCommentAdded }) => {
                         <div key={comment._id} className="comment-item">
                             <div className="comment-header">
                                 <div className="comment-author">
-                                    <span className="author-avatar">💬</span>
+                                    <div className="comment-avatar">
+                                        {comment.user?.profilePic?.url ? (
+                                            <img src={comment.user.profilePic.url} alt={comment.user.name} />
+                                        ) : (
+                                            <div className="avatar-placeholder-xs">
+                                                {comment.user?.name?.charAt(0).toUpperCase()}
+                                            </div>
+                                        )}
+                                    </div>
                                     <span className="author-name">
                                         {comment.user?.name || 'Anonymous'}
                                     </span>

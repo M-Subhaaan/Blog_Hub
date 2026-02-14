@@ -8,7 +8,9 @@ const AdminSignupForm = ({ onClose, onBack }) => {
         email: '',
         password: '',
         secretKey: '',
+        profilePic: ''
     });
+    const [preview, setPreview] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { signupAdmin } = useAuth();
@@ -20,12 +22,42 @@ const AdminSignupForm = ({ onClose, onBack }) => {
         });
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                setError('File size should be less than 5MB');
+                return;
+            }
+
+            setFormData({
+                ...formData,
+                profilePic: file
+            });
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        const result = await signupAdmin(formData);
+        const data = new FormData();
+        data.append('name', formData.name);
+        data.append('email', formData.email);
+        data.append('password', formData.password);
+        data.append('secretKey', formData.secretKey);
+        if (formData.profilePic) {
+            data.append('profilePic', formData.profilePic);
+        }
+
+        const result = await signupAdmin(data);
 
         setLoading(false);
 
@@ -53,6 +85,29 @@ const AdminSignupForm = ({ onClose, onBack }) => {
                 )}
 
                 <form onSubmit={handleSubmit}>
+                    <div className="profile-upload-section">
+                        <div className="avatar-preview">
+                            {preview ? (
+                                <img src={preview} alt="Profile Preview" />
+                            ) : (
+                                <div className="avatar-placeholder">👤</div>
+                            )}
+                        </div>
+                        <div className="file-input-wrapper">
+                            <label htmlFor="adminProfilePic" className="btn btn-outline btn-sm">
+                                {preview ? 'Change Photo' : 'Upload Photo'}
+                            </label>
+                            <input
+                                type="file"
+                                id="adminProfilePic"
+                                name="profilePic"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                            />
+                        </div>
+                    </div>
+
                     <div className="form-group">
                         <label htmlFor="name">Name</label>
                         <input

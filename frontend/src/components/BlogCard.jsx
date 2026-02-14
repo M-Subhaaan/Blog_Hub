@@ -25,6 +25,13 @@ const BlogCard = ({ blog }) => {
 
     return (
         <div className="blog-card" onClick={() => navigate(`/blog/${blog._id}`)}>
+            <div className="blog-card-thumbnail">
+                {blog.thumbnail?.url ? (
+                    <img src={blog.thumbnail.url} alt={blog.title} />
+                ) : (
+                    <div className="thumbnail-placeholder-small">📝</div>
+                )}
+            </div>
             <div className="blog-card-header">
                 <span
                     className="blog-topic"
@@ -34,6 +41,8 @@ const BlogCard = ({ blog }) => {
                 </span>
                 <span className="blog-date">{formatDate(blog.createdAt)}</span>
             </div>
+
+
 
             <h3 className="blog-title">{blog.title}</h3>
 

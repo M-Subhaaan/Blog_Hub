@@ -158,6 +158,28 @@ const BlogDetailPage = () => {
 
                     <h1 className="blog-title-main">{blog.title}</h1>
 
+                    <div className="blog-detail-thumbnail">
+                        {blog.thumbnail?.url && (
+                            <img src={blog.thumbnail.url} alt={blog.title} />
+                        )}
+                    </div>
+
+                    <div className="blog-author-info">
+                        <div className="author-avatar">
+                            {blog.author?.profilePic?.url ? (
+                                <img src={blog.author.profilePic.url} alt={blog.author.name} />
+                            ) : (
+                                <div className="avatar-placeholder-sm">
+                                    {blog.author?.name?.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                        </div>
+                        <div className="author-details">
+                            <span className="author-name">By {blog.author?.name}</span>
+                            <span className="author-role">{blog.author?.role}</span>
+                        </div>
+                    </div>
+
                     <div className="blog-body">
                         <p>{blog.content}</p>
                     </div>

@@ -1,6 +1,7 @@
 const express = require("express");
 const authController = require("../controllers/authController");
 const blogController = require("../controllers/blogController");
+const upload = require("../utils/multer");
 
 const router = express.Router();
 
@@ -10,10 +11,16 @@ router.get("/topic/:topic", blogController.getBlogsByTopic);
 
 router.use(authController.protect);
 
-router.post("/", authController.restrictTo("admin"), blogController.createBlog);
+router.post(
+  "/",
+  authController.restrictTo("admin"),
+  upload.single("thumbnail"),
+  blogController.createBlog,
+);
 router.patch(
   "/updateblog/:id",
   authController.restrictTo("admin"),
+  upload.single("thumbnail"),
   blogController.updateBlog,
 );
 

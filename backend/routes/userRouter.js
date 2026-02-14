@@ -1,10 +1,15 @@
 const express = require("express");
 const authController = require("../controllers/authController");
 const userController = require("../controllers/userController");
+const upload = require("../utils/multer");
 const router = express.Router();
 
-router.post("/register", authController.signUp);
-router.post("/admin/signup", authController.adminSignUp);
+router.post("/register", upload.single("profilePic"), authController.signUp);
+router.post(
+  "/admin/signup",
+  upload.single("profilePic"),
+  authController.adminSignUp,
+);
 router.post("/login", authController.login);
 router.post("/forget-password", authController.forgetPassword);
 router.patch("/resetpassword/:token", authController.resetPassword);
